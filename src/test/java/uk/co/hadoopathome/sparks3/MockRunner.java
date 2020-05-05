@@ -7,10 +7,15 @@ import com.adobe.testing.s3mock.util.HashUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.Objects;
 import org.apache.spark.sql.SparkSession;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -31,11 +36,12 @@ public class MockRunner {
           .build();
 
   private static final String INPUT_FILE_PATH = "src/test/resources/input_file.csv";
-  private static final String OUTPUT_DIR = "src/test/resources/output/";
   private final S3Client s3Client = S3_MOCK.createS3ClientV2();
+  @TempDir File outputPath;
 
+  @DisplayName("Asserts that s3Mock is functioning")
   @Test
-  void basicS3Operations() throws IOException, NoSuchAlgorithmException {
+  void testBasicS3Functionality() throws IOException, NoSuchAlgorithmException {
     File inputFile = new File(INPUT_FILE_PATH);
     PutObjectRequest putObjectRequest =
         PutObjectRequest.builder().bucket(BUCKET_NAME).key(inputFile.getName()).build();
@@ -46,12 +52,21 @@ public class MockRunner {
     assertEquals(HashUtil.getDigest(new FileInputStream(inputFile)), HashUtil.getDigest(response));
   }
 
+  @DisplayName(
+      "Asserts that the main application runs when reading and writing to local (non-S3) locations")
   @Test
-  void runSparkLocalFiles() {
-    SparkSession sparkSession = SparkSession.builder()
-        .master("local")
-        .appName("Basic App")
-        .getOrCreate();
-    SparkRunner.processSpark(new String[] {INPUT_FILE_PATH, OUTPUT_DIR}, sparkSession);
+  void testRunSparkLocal() throws IOException {
+    SparkSession sparkSession =
+        SparkSession.builder().master("local").appName("Basic App").getOrCreate();
+    File outputDir = new File(this.outputPath.toString() + "/output");
+    SparkRunner.processSpark(
+        new String[] {INPUT_FILE_PATH, outputDir.getAbsolutePath()}, sparkSession);
+    File outputFile =
+        Objects.requireNonNull(outputDir.listFiles((d, name) -> name.endsWith(".csv")))[0];
+    List<String> outputContent = Files.readAllLines(outputFile.toPath());
+    assertEquals(3, outputContent.size());
+    assertEquals("name,subject", outputContent.get(0));
+    assertEquals("ben,physics", outputContent.get(1));
+    assertEquals("clo,marketing", outputContent.get(2));
   }
 }

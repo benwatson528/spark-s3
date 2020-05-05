@@ -5,13 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SparkRunner {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(SparkRunner.class);
-
+  
   public static void processSpark(String[] args, SparkSession sparkSession) {
     String inputFile = args[0];
     String outputDir = args[1];
-    LOGGER.info("Processing input file {}", inputFile);
     sparkSession
         .read()
         .option("header", true)
@@ -19,8 +16,8 @@ public class SparkRunner {
         .csv(inputFile)
         .drop("age")
         .write()
+        .option("header", true)
         .format("csv")
         .save(outputDir);
-    LOGGER.info("Data written to {}", outputDir);
   }
 }

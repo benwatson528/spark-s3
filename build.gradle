@@ -47,7 +47,6 @@ dependencies {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
     }
     testCompile("com.google.code.gson:gson:2.8.2")
-
     testCompile("org.junit.jupiter:junit-jupiter-api:5.5.1")
     testCompile("org.junit.jupiter:junit-jupiter-engine:5.5.1")
 }
