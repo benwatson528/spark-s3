@@ -59,8 +59,10 @@ public class MockRunner {
     SparkSession sparkSession =
         SparkSession.builder().master("local").appName("Basic App").getOrCreate();
     File outputDir = new File(this.outputPath.toString() + "/output");
+
     SparkRunner.processSpark(
         new String[] {INPUT_FILE_PATH, outputDir.getAbsolutePath()}, sparkSession);
+
     File outputFile =
         Objects.requireNonNull(outputDir.listFiles((d, name) -> name.endsWith(".csv")))[0];
     List<String> outputContent = Files.readAllLines(outputFile.toPath());
@@ -68,5 +70,20 @@ public class MockRunner {
     assertEquals("name,subject", outputContent.get(0));
     assertEquals("ben,physics", outputContent.get(1));
     assertEquals("clo,marketing", outputContent.get(2));
+  }
+
+  @DisplayName("Runs the Spark job with S3 input and output paths")
+  @Test
+  void testRunSparkS3() {
+    SparkSession sparkSession =
+        SparkSession.builder().master("local").appName("Basic App").getOrCreate();
+    String inputFileName = "input_file.csv";
+    PutObjectRequest putObjectRequest =
+        PutObjectRequest.builder().bucket(BUCKET_NAME).key(inputFileName).build();
+    this.s3Client.putObject(putObjectRequest, RequestBody.fromFile(new File(INPUT_FILE_PATH)));
+
+    String s3InputPath = String.format("s3://%s/%s", BUCKET_NAME, inputFileName);
+    String s3OutputPath = String.format("s3://%s/output/", BUCKET_NAME);
+    SparkRunner.processSpark(new String[] {s3InputPath, s3OutputPath}, sparkSession);
   }
 }
