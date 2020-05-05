@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id 'project-report'
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    logVersion = "2.13.2"
+}
+
+dependencies {
+    //Spark DEPENDENCIES
+    implementation("org.apache.spark:spark-core_2.12:2.4.5") {
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+        exclude group: "org.slf4j", module: "slf4j-api"
+    }
+    implementation("org.apache.spark:spark-sql_2.12:2.4.5") {
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+        exclude group: "org.slf4j", module: "slf4j-api"
+    }
+    compile('com.fasterxml.jackson.core:jackson-databind:2.9.1') {
+        exclude module: "jackson-annotations"
+        exclude module: "jackson-core"
+    }
+    compile('com.fasterxml.jackson.core:jackson-annotations:2.9.1')
+    compile('com.fasterxml.jackson.core:jackson-core:2.9.1')
+    compile 'org.scala-lang:scala-library:2.12.3'
+    compile('com.fasterxml.jackson.module:jackson-module-scala_2.12:2.9.1') {
+        exclude group: "org.scala-lang"
+        exclude module: "jackson-core"
+        exclude module: "jackson-annotations"
+        exclude module: "jackson-databind"
+    }
+
+    //LOGGING DEPENDENCIES
+    implementation("org.apache.logging.log4j:log4j-api:${logVersion}")
+    implementation("org.apache.logging.log4j:log4j-core:${logVersion}")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:${logVersion}")
+
+    //TEST DEPENDENCIES
+    testCompile("com.adobe.testing:s3mock-junit5:2.1.19") {
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+        exclude group: "org.slf4j", module: "slf4j-api"
+        exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
+    }
+    testCompile("com.google.code.gson:gson:2.8.2")
+
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.5.1")
+    testCompile("org.junit.jupiter:junit-jupiter-engine:5.5.1")
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
