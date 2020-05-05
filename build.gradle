@@ -9,26 +9,29 @@ repositories {
 
 ext {
     logVersion = "2.13.2"
+    sparkVersion = "2.4.5"
+    jacksonVersion = "2.9.1"
+    junitVersion = "5.5.1"
 }
 
 dependencies {
-    //Spark DEPENDENCIES
-    implementation("org.apache.spark:spark-core_2.12:2.4.5") {
+    //SPARK DEPENDENCIES
+    implementation("org.apache.spark:spark-core_2.12:${sparkVersion}") {
         exclude group: "org.slf4j", module: "slf4j-log4j12"
         exclude group: "org.slf4j", module: "slf4j-api"
     }
-    implementation("org.apache.spark:spark-sql_2.12:2.4.5") {
+    implementation("org.apache.spark:spark-sql_2.12:${sparkVersion}") {
         exclude group: "org.slf4j", module: "slf4j-log4j12"
         exclude group: "org.slf4j", module: "slf4j-api"
     }
-    compile('com.fasterxml.jackson.core:jackson-databind:2.9.1') {
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}") {
         exclude module: "jackson-annotations"
         exclude module: "jackson-core"
     }
-    compile('com.fasterxml.jackson.core:jackson-annotations:2.9.1')
-    compile('com.fasterxml.jackson.core:jackson-core:2.9.1')
-    compile 'org.scala-lang:scala-library:2.12.3'
-    compile('com.fasterxml.jackson.module:jackson-module-scala_2.12:2.9.1') {
+    implementation("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+    implementation("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+    implementation("org.scala-lang:scala-library:2.12.3")
+    implementation("com.fasterxml.jackson.module:jackson-module-scala_2.12:${jacksonVersion}") {
         exclude group: "org.scala-lang"
         exclude module: "jackson-core"
         exclude module: "jackson-annotations"
@@ -47,8 +50,8 @@ dependencies {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
     }
     testCompile("com.google.code.gson:gson:2.8.2")
-    testCompile("org.junit.jupiter:junit-jupiter-api:5.5.1")
-    testCompile("org.junit.jupiter:junit-jupiter-engine:5.5.1")
+    testCompile("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testCompile("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }
 
 test {
